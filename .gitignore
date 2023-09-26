@@ -2,3 +2,4 @@ static_root
 db.sqlite3
 .idea
 __pycache__
+.secret_key
