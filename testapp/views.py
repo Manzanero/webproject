@@ -1,29 +1,38 @@
+import glob
 import json
+import os
 from datetime import datetime
+
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 
-
-def get_example(request):
-    response = "hola"
-    return JsonResponse(response, safe=False, json_dumps_params={'indent': 2})
+from testapp.models import EntityTexture
 
 
-@csrf_exempt
-def post_example(request):
-    ayb = json.loads(request.body.decode())
-    a = ayb["a"]
-    b = ayb["b"]
-    response = int(a) + int(b)
+def texture_gallery(request):
+    base_dir = str(settings.BASE_DIR / 'static').replace(os.sep, '/') + '/'
+    file_abs_paths = glob.glob(str(settings.BASE_DIR / 'static/monsters/**/*.png'))
+    for file_abs_path in file_abs_paths:
+        file_path = file_abs_path.replace(os.sep, '/').split(base_dir)[1]
+        category = file_path.split('/')[0]
+        sub_category = file_path.split('/')[1]
+        code = file_path.split('/')[2].split('.png')[0]
+        entity_texture = EntityTexture.objects.get_or_create(
+            category=category,
+            sub_category=sub_category,
+            code=code,
+        )
+        print(entity_texture)
 
-    return JsonResponse(response, safe=False, json_dumps_params={'indent': 2})
+    entity_textures = EntityTexture.objects.all()
+    context = {'entity_textures': entity_textures}
+    return render(request, 'testapp/texture_gallery.html', context)
 
 
-def gallery(request):
-    return render(request, 'testapp/gallery.html')
-
-
-def gallery_photo(request, photo):
-    context = {'photo': photo}
-    return render(request, 'testapp/gallery_photo.html', context)
+def save(request, code, name):
+    e = EntityTexture.objects.get(code=code)
+    e.name = name
+    e.save()
+    return JsonResponse({'status': 'OK'})

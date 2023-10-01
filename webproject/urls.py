@@ -20,8 +20,6 @@ import testapp.views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('get_example', testapp.views.get_example),
-    path('post_example', testapp.views.post_example),
-    path('gallery', testapp.views.gallery),
-    path('gallery/<photo>', testapp.views.gallery_photo)
+    path('texture_gallery', testapp.views.texture_gallery),
+    path('save/<code>/as/<name>', testapp.views.save)
 ]
